@@ -27,10 +27,10 @@ class AlienInvasion:
         self.aliens = pygame.sprite.Group()
         self.died_aliens = pygame.sprite.Group()
 
-        pygame.time.set_timer(self.settings.FIRE_EVENT, 200)
-        pygame.time.set_timer(self.settings.ALIEN_CREATE_EVENT, 2000)
-        pygame.time.set_timer(self.settings.ALIEN_MOVE_EVENT, 100)
-        pygame.time.set_timer(self.settings.BURST_EVENT, 200)
+        pygame.time.set_timer(self.settings.FIRE_EVENT, self.settings.fire_event_time)
+        pygame.time.set_timer(self.settings.ALIEN_CREATE_EVENT, self.settings.alien_create_event_time)
+        pygame.time.set_timer(self.settings.ALIEN_MOVE_EVENT, self.settings.alien_move_event_time)
+        pygame.time.set_timer(self.settings.BURST_EVENT, self.settings.burst_event_time)
 
     def run_game(self):
         """开始游戏的主循环"""
@@ -40,15 +40,8 @@ class AlienInvasion:
             self.ship.update()
             self.bullets.update()
 
-            # 删除消失的子弹
-            for bullet in self.bullets.copy():
-                if bullet.rect.bottom <= 0:
-                    self.bullets.remove(bullet)
-            #            print(len(self.bullets))
-
-            for alien in self.aliens.copy():
-                if alien.rect.bottom >= self.screen.get_height():
-                    self.aliens.remove(alien)
+            # 删除消失的元素
+            self._check_disappear_element()
 
             self._collide()
             self._update_screen()
@@ -63,7 +56,8 @@ class AlienInvasion:
             elif key_press[pygame.K_SPACE] and event.type == self.settings.FIRE_EVENT:
                 self._fire_bullet()
             if event.type == self.settings.BURST_EVENT:
-                self.aliens.remove(self.died_aliens)
+                for alien in self.died_aliens:
+                    self.aliens.remove(alien)
             if event.type == self.settings.ALIEN_CREATE_EVENT:
                 self._create_alien()
             if self.aliens and event.type == self.settings.ALIEN_MOVE_EVENT:
@@ -111,13 +105,26 @@ class AlienInvasion:
         alien.image = pygame.image.load("images/burst.bmp")
 
     def _collide(self):
+        """子弹与外星人碰撞事件"""
         dict_alien_bullet = pygame.sprite.groupcollide(self.bullets, self.aliens, True, False)
         for alien_sprites in dict_alien_bullet.values():
             for alien_sprite in alien_sprites:
                 alien_sprite.update(False)
-                self.died_aliens = alien_sprite
+                self.died_aliens.add(alien_sprite)
+
+    def _check_disappear_element(self):
+        """删除消失在界面的元素"""
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom <= 0:
+                self.bullets.remove(bullet)
+        #            print(len(self.bullets))
+
+        for alien in self.aliens.copy():
+            if alien.rect.bottom >= self.screen.get_height():
+                self.aliens.remove(alien)
 
     def _update_screen(self):
+        """更新屏幕"""
         self.screen.fill(self.settings.bg_color)
         self.ship.blitme()
         for bullet in self.bullets.sprites():

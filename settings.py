@@ -18,9 +18,14 @@ class Settings:
         self.ship_speed = 1.0
 
         self.bullet_speed = 1.5
-        self.bullet_width = 3
+        self.bullet_width = 100
         self.bullet_height = 15
         self.bullet_color = (60, 60, 60)
 
         self.alien_x_speed = 10
         self.alien_y_speed = 5
+
+        self.fire_event_time = 100
+        self.alien_create_event_time = 1000
+        self.alien_move_event_time = 50
+        self.burst_event_time = 200
