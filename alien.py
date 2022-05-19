@@ -13,10 +13,15 @@ class Alien(Sprite):
         self.screen = ai_game.screen
         self.settings = ai_game.settings
         self.moving = bool(random.randrange(0, 2, 1))
-
+        self.angel = 0
         # 加载外星人图像并设置其rect属性
         self.image = pygame.image.load("images/alien.bmp")
         self.rect = self.image.get_rect()
+        self.alpha = 100
+        # 设置图片背景颜色为透明，与set_colorkey()相同的颜色透明处理
+        self.image.set_colorkey((230, 230, 230))
+        # 设置图片透明度
+        self.image.set_alpha(100)
 
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
@@ -49,3 +54,4 @@ class Alien(Sprite):
 
     def blitme(self):
         self.screen.blit(self.image, self.rect)
+        self.angel += 1
