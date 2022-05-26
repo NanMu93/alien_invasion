@@ -21,7 +21,7 @@ class Settings:
         self.ship_limit = 3
 
         self.bullet_speed = 15
-        self.bullet_width = 100
+        self.bullet_width = 10
         self.bullet_height = 15
         self.bullet_color = (60, 60, 60)
 
@@ -32,3 +32,20 @@ class Settings:
         self.alien_create_event_time = 1000
         self.alien_move_event_time = 50
         self.burst_event_time = 200
+
+        self.speedup_scale = 1.1
+
+    def initialize_dynamic_settings(self):
+        self.ship_speed = 10
+        self.bullet_speed = 15
+        self.alien_x_speed = 10
+        self.alien_y_speed = 5
+        self.alien_create_event_time = 1000
+
+    def increase_speed(self):
+        """提高速度设置"""
+        self.ship_speed *= self.speedup_scale
+        self.bullet_speed *= self.speedup_scale
+        self.alien_x_speed *= self.speedup_scale
+        self.alien_y_speed *= self.speedup_scale
+        self.alien_create_event_time *= self.speedup_scale

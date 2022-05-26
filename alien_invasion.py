@@ -1,3 +1,4 @@
+import atexit
 import sys
 import pygame
 from settings import Settings
@@ -5,6 +6,7 @@ from ship import Ship
 from bullet import Bullet
 from alien import Alien
 from game_stats import GameStats
+from scoreboard import Scoreboard
 from time import sleep
 from button import Button
 
@@ -28,6 +30,7 @@ class AlienInvasion:
 
         self.play_button = Button(self, "Play")
 
+        self.sb = Scoreboard(self)
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -119,7 +122,14 @@ class AlienInvasion:
             for alien_sprite in alien_sprites.copy():
                 alien_sprite.update(False)
                 self.died_aliens.add(alien_sprite)
-
+                self.stats.kill_alien += 1
+                self.stats.score += 1
+                self.sb.prep_score()
+                if not self.stats.kill_alien % 10:
+                    self.settings.increase_speed()
+                    print("update level")
+            print(f"{self.stats.kill_alien % 10}")
+            self.sb.check_high_score()
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
             self._ship_hit()
 
@@ -132,6 +142,7 @@ class AlienInvasion:
 
         for alien in self.aliens.copy():
             if alien.rect.bottom >= self.screen.get_height():
+                self._ship_hit()
                 self.aliens.remove(alien)
 
     def _update_screen(self):
@@ -146,6 +157,9 @@ class AlienInvasion:
         # 如果游戏还没有开始就绘制开始按钮
         if not self.stats.game_active:
             self.play_button.draw_button()
+        # 显示得分
+        self.sb.show_score()
+
         # 让最近绘制的屏幕可见
         pygame.display.flip()
 
@@ -156,24 +170,30 @@ class AlienInvasion:
 
         self.aliens.empty()
         self.bullets.empty()
-
+        self.ship.center_ship()
         if self.stats.ships_left <= 0:
             self.stats.game_active = False
             pygame.mouse.set_visible(True)
         sleep(0.5)
-        self.ship.center_ship()
 
     def _check_play_button(self, mouse_pos):
         """玩家单击play按钮开始新游戏"""
         if self.play_button.rect.collidepoint(mouse_pos) and not self.stats.game_active:
             self.stats.reset_stats()
             self.stats.game_active = True
-
+            self.sb.reset_score()
             self.aliens.empty()
             self.bullets.empty()
-
+            self.settings.initialize_dynamic_settings()
             # 隐藏鼠标光标
             pygame.mouse.set_visible(False)
+
+
+# 在游戏退出时将最高分保存到文件
+@atexit.register
+def save_value():
+    with open("config/score", "w") as hs:
+        hs.write(str(ai.stats.high_score))
 
 
 if __name__ == "__main__":

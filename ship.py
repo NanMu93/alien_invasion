@@ -47,4 +47,6 @@ class Ship(Sprite):
 
     def center_ship(self):
         self.rect.midbottom = self.screen_rect.midbottom
+        # 重置位置需要将update的偏移量也重新设置
         self.x = float(self.rect.x)
+        self.y = float(self.rect.y)
